@@ -16,8 +16,9 @@ In this guide, we will learn how to generate the projects for the previous board
 You need to download and install the following software:
 
 - [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)   ( v6.4.0 )
-- [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)  ( v1.8.0 )
+- [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)  ( v1.10.1 )
 - [STM32CubeProg](https://www.st.com/en/development-tools/stm32cubeprog.html) ( v2.9.0 )
+- [STM32Cube.AI](https://www.st.com/en/embedded-software/x-cube-ai.html) ( v7.3.0 )
 
 The following Nucleo boards are required:
 - [NUCLEO-H7A3ZI-Q](https://www.st.com/en/evaluation-tools/nucleo-h7a3zi-q.html#sample-buy)
