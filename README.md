@@ -16,14 +16,9 @@ In this guide, we will learn how to generate the projects for the previous board
 You need to download and install the following software:
 
 - [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)   ( v6.4.0 )
-- [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)  ( v1.10.1 )
+- [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)  ( v1.8.0 )
 - [STM32CubeProg](https://www.st.com/en/development-tools/stm32cubeprog.html) ( v2.9.0 )
 - [STM32Cube.AI](https://www.st.com/en/embedded-software/x-cube-ai.html) ( v7.3.0 )
-
-The following Nucleo boards are required:
-- [NUCLEO-H7A3ZI-Q](https://www.st.com/en/evaluation-tools/nucleo-h7a3zi-q.html#sample-buy)
-- [NUCLEO-U575ZI-Q](https://www.st.com/en/evaluation-tools/nucleo-u575zi-q.html#sample-buy)
-- [NUCLEO-L4R5ZI](https://www.st.com/en/evaluation-tools/nucleo-l4r5zi.html#sample-buy)
 
 Also we need to download  the following pretrained quantized model from MLCommons™ Github:
 
@@ -32,7 +27,8 @@ Also we need to download  the following pretrained quantized model from MLCommon
 - [Keyword Spotting](https://github.com/mlcommons/tiny/blob/master/benchmark/training/keyword_spotting/trained_models/kws_ref_model.tflite)
 - [Person Detection](https://github.com/mlcommons/tiny/blob/master/benchmark/training/visual_wake_words/trained_models/vww_96_int8.tflite)
 
-## NUCLEO-H7A3ZI-Q Projects
+### NUCLEO-H7A3ZI-Q Projects
+
 In this section we will explain how to generate the different benchmark projects for the **NUCLEO-H7A3ZI-Q** board.
 We will take the Image Classification benchmark project as an example and then exactly the same steps should be repeated for the rest of the scenarios (Anomaly Detection, Keyword Spotting and Person Detection)
 
@@ -46,7 +42,8 @@ You should have something like this to start:
 
 **2. Open the .ioc file and follow the next steps to generate your project template:**
 
-![Alt Text](./doc/STM32_H7A3ZI_config.gif)
+![Alt Text](./doc/H7A3_config.gif)
+
 
 ### Configure and build the project using STM32CubeIDE
 After generating the project using STM32CubeMX you should have something like this in your workspace:
@@ -117,8 +114,41 @@ by the following:
 /* please refer to the startup file (startup_stm32h7xx.s).                    */
 /******************************************************************************/
 ```
+2.3 Configure the TCM memory on the STM32H7A3 :
+<br> Under the project, open the file called **STM32H7A3ZITXQ_FLASH.ld**.
+Under this file : 
+<br> - Set data sections, into DTCMRAM1 :
+```bash
+  /* Initialized data sections goes into RAM, load LMA copy after code */
+  .data :
+  {
+    . = ALIGN(4);
+    _sdata = .;        /* create a global symbol at data start */
+    *(.data)           /* .data sections */
+    *(.data*)          /* .data* sections */
+    *(.RamFunc)        /* .RamFunc sections */
+    *(.RamFunc*)       /* .RamFunc* sections */
 
-**3. Build the project in Release mode:**
+    . = ALIGN(4);
+    _edata = .;        /* define a global symbol at data end */
+  } >DTCMRAM1 AT> FLASH
+```
+<br> - Set the user heap stack section, into DTCMRAM1 :
+
+```bash
+    /* User_heap_stack section, used to check that there is enough RAM left */
+  ._user_heap_stack :
+  {
+    . = ALIGN(8);
+    PROVIDE ( end = . );
+    PROVIDE ( _end = . );
+    . = . + _Min_Heap_Size;
+    . = . + _Min_Stack_Size;
+    . = ALIGN(8);
+  } >DTCMRAM1
+```
+
+<br>**3. Build the project in Release mode:**
 
 Set the project to the release mode as the following and then click on build :
 
@@ -182,7 +212,7 @@ You should have something like this to start:
 
 **2. Open the .ioc file and follow the next steps to generate your project template:**
 
-![Alt Text](./doc/U5_mx_config.gif)
+![Alt Text](./doc/U575_config.gif)
 
 ### Configure and build the project using STM32CubeIDE
 After generating the project using STM32CubeMX you should have something like this in your workspace:
@@ -319,7 +349,7 @@ You should have something like this to start:
 
 **2. Open the .ioc file and follow the next steps to generate your project template:**
 
-![Alt Text](./doc/STM32_l4_config.gif)
+![Alt Text](./doc/L4R5_config.gif)
 
 ### Configure and build the project using STM32CubeIDE
 After generating the project using STM32CubeMX you should have something like this in your workspace:
