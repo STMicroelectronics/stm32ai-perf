@@ -15,10 +15,10 @@ In this guide, we will learn how to generate the projects for the previous board
 ## Before You Start
 You need to download and install the following software:
 
-- [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)   ( v6.4.0 )
-- [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)  ( v1.8.0 )
+- [STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)   ( v6.8.0 )
+- [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)  ( v1.12.1 )
 - [STM32CubeProg](https://www.st.com/en/development-tools/stm32cubeprog.html) ( v2.9.0 )
-- [STM32Cube.AI](https://www.st.com/en/embedded-software/x-cube-ai.html) ( v7.3.0 )
+- [STM32Cube.AI](https://www.st.com/en/embedded-software/x-cube-ai.html) ( v8.1.0 )
 
 Also we need to download  the following pretrained quantized model from MLCommons™ Github:
 
@@ -117,7 +117,22 @@ by the following:
 2.3 Configure the TCM memory on the STM32H7A3 :
 <br> Under the project, open the file called **STM32H7A3ZITXQ_FLASH.ld**.
 Under this file : 
+<br> - Specify the memory area : 
+```bash
+/* Specify the memory areas */
+MEMORY
+{
+  ITCMRAM (xrw)  : ORIGIN = 0x00000000, LENGTH = 64K
+  FLASH (rx)     : ORIGIN = 0x08000000, LENGTH = 2048K
+  DTCMRAM1 (xrw) : ORIGIN = 0x20000000, LENGTH = 128K
+  /*DTCMRAM2 (xrw) : ORIGIN = 0x20010000, LENGTH = 64K*/
+  RAM (xrw)      : ORIGIN = 0x24000000, LENGTH = 1024K
+  RAM_CD (xrw)   : ORIGIN = 0x30000000, LENGTH = 128K
+  RAM_SRD (xrw)  : ORIGIN = 0x38000000, LENGTH = 32K
+}
+```
 <br> - Set data sections, into DTCMRAM1 :
+
 ```bash
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data :
@@ -133,6 +148,24 @@ Under this file :
     _edata = .;        /* define a global symbol at data end */
   } >DTCMRAM1 AT> FLASH
 ```
+```bash
+  /* Uninitialized data section */
+  . = ALIGN(4);
+  .bss :
+  {
+    /* This is used by the startup in order to initialize the .bss section */
+    _sbss = .;         /* define a global symbol at bss start */
+    __bss_start__ = _sbss;
+    *(.bss)
+    *(.bss*)
+    *(COMMON)
+
+    . = ALIGN(4);
+    _ebss = .;         /* define a global symbol at bss end */
+    __bss_end__ = _ebss;
+  } >DTCMRAM1
+ 
+```
 <br> - Set the user heap stack section, into DTCMRAM1 :
 
 ```bash
@@ -147,7 +180,6 @@ Under this file :
     . = ALIGN(8);
   } >DTCMRAM1
 ```
-
 <br>**3. Build the project in Release mode:**
 
 Set the project to the release mode as the following and then click on build :
@@ -439,7 +471,7 @@ Make sure that your board has the the following jumpers fitted:
 
 **2. Flash the board:**
 
-Connect the board to the laptop using a usb cable and use STM32CubeProg to flash the board as the following:
+Connect the board to the laptop using a usb cable and use STM32CubeProg to flash the board as the following and before flashing your board make sure that your board is in single bank, for this you need to go under option bytes then user configuration and let DBANK bit unchecked.
 
 ![plot](./doc/l4_programmer_config.gif)
 
